@@ -14,6 +14,7 @@ function pre($a, $live = false) {
 }
 
 $count = 0;
+
 $fp = fopen("ACLED_Nigeria.csv", "rt");
 $h = fgetcsv($fp);
 $data = array();
@@ -26,6 +27,7 @@ foreach( $h as $v ) {
 $unique["LATLNG"] = array();
 $unique["DAY_OF_WEEK"] = array();
 $unique["DAY_OF_WEEK_PER_YEAR"] = array();
+$unique["BOKO_HARAM"] = array("yes" => 0, "no" => 0);
 
 function format_date($v, $mode = 1 ) {
     $x = explode("/", $v);
@@ -39,14 +41,32 @@ function format_date($v, $mode = 1 ) {
     }
 }
 
+$rewritten_data = array();
+
 while( !feof($fp) ) {
     $r = fgetcsv($fp);
     if( $r === false ) continue;
+
+    // fix for json output
+    foreach( $r as $k => $v ) {
+        $r[$k] = utf8_encode($v);
+    }
 
     $row = array_combine(array_values($h), $r);
     $data[] = $row;
 
     foreach( $row as $k => $v) {
+
+        // boko-haram as a participant?
+        if( $k === "ACTOR1" || $k === "ACTOR2" ) {
+            if( stripos($v, "boko") !== false ) {
+                $unique["BOKO_HARAM"]["yes"]++;
+                $row["BOKO_HARAM"] = "yes";
+            } else {
+                $unique["BOKO_HARAM"]["no"]++;
+                $row["BOKO_HARAM"] = "no";
+            }
+        }
 
         if( $k == "GWNO" ) continue;
         if( $k == "EVENT_ID_NO_CNTY" ) continue;
@@ -55,10 +75,12 @@ while( !feof($fp) ) {
             $dow = format_date($v, 2);
             if( !isset($unique["DAY_OF_WEEK"][$dow]) ) $unique["DAY_OF_WEEK"][$dow] = 0;
             $unique["DAY_OF_WEEK"][$dow]++;
+            $row["DAY_OF_WEEK"] = $dow;
 
             $dow = format_date($v, 3);
             if( !isset($unique["DAY_OF_WEEK_PER_YEAR"][$dow]) ) $unique["DAY_OF_WEEK_PER_YEAR"][$dow] = 0;
             $unique["DAY_OF_WEEK_PER_YEAR"][$dow]++;
+            $row["DAY_OF_WEEK_PER_YEAR"] = $dow;
 
             $v = format_date($v, 1);
         }
@@ -72,6 +94,8 @@ while( !feof($fp) ) {
             $v = $row["LATITUDE"] . ", " . $row["LONGITUDE"];
             if( !isset($unique["LATLNG"][$v]) ) $unique["LATLNG"][$v] = 0;
             $unique["LATLNG"][$v]++;
+            $row["LATLNG"] = $v;
+            $rewritten_data[] = $row;
             continue;
         }
         if( $k == "LONGITUDE" ) continue;
@@ -79,13 +103,23 @@ while( !feof($fp) ) {
 
         // may want to bin fatalities. max value = 6766
         if( $k == "FATALITIES" ) {
+            if( intval($v) === 0 ) continue;
+
+            $orig = $v;
             $num = intval($v / 5) * 5;
-            $v = sprintf("%4s - %4s", $num, $num + 5);
+            $v = sprintf("%4s - %4s", $num+1, $num + 5);
+
+            $row["FATALITIES_BIN"] = $v;
+            // note zeroes are not computed in fatalities bin
+            #echo "" . $orig . "\t" . $v . "\n";
+
         }
 
         if( !isset($unique[$k][$v]) ) $unique[$k][$v] = 0;
         $unique[$k][$v]++;
     }
+
+    $rewritten_data[] = $row;
     $count++;
     if( defined("LIMIT") && $count > LIMIT ) break;
 }
@@ -107,8 +141,8 @@ foreach( $unique as $k => $v ) {
 
 // for legibility
 ksort($final["FATALITIES"]);
-
 $unique = $final;
+#pre( $unique["FATALITIES"]);
 
 #pre(count($unique["ACTOR2"]));
 #pre($h, true);
@@ -116,3 +150,38 @@ $unique = $final;
 
 #pre($unique);
 #pre($data);
+
+// for service
+unset( $unique["LATLNG"] );
+unset( $unique["NOTES"] );
+unset( $unique["ACTOR1"] );
+unset( $unique["ACTOR2"] );
+unset( $unique["ALLY_ACTOR_1"] );
+unset( $unique["ALLY_ACTOR_2"] );
+unset( $unique["ADMIN2"] );
+unset( $unique["LOCATION"] );
+unset( $unique["SOURCE"] );
+unset( $unique["DAY_OF_WEEK_PER_YEAR"] );
+unset( $unique["EVENT_DATE"] );
+#pre( $unique, true );
+
+// output as external file
+// file_put_contents("data.json", json_encode($unique) );
+
+// echo "<PRE>";
+// header("Content-Type: application/json");
+//if( !defined('SERVICE_MODE') ) {
+$fp = fopen("for_sql.csv", "wt");
+fputcsv($fp, array_keys($rewritten_data[0]) );
+foreach( $rewritten_data as $row ) {
+    fputcsv( $fp, $row );
+}
+fclose( $fp );
+
+die;
+echo json_encode($unique, JSON_PRETTY_PRINT);
+//}
+// if( defined("SERVICE_MODE_SECOND")) {
+//     echo json_encode($unique, JSON_PRETTY_PRINT);
+// }
+// echo number_format(filesize("data.json")) . " bytes";
