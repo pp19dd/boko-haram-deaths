@@ -163,7 +163,11 @@ unset( $unique["LOCATION"] );
 unset( $unique["SOURCE"] );
 unset( $unique["DAY_OF_WEEK_PER_YEAR"] );
 unset( $unique["EVENT_DATE"] );
-#pre( $unique, true );
+
+ksort( $unique["ADMIN1"] );
+$temp = array_keys($unique["ADMIN1"]);
+$temp = array_flip($temp);
+pre($temp);
 
 // output as external file
 // file_put_contents("data.json", json_encode($unique) );
