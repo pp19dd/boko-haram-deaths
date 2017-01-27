@@ -15,7 +15,7 @@ function smartbox(id, w, h) {
         length: 0
     }
 
-    this.data = [];
+    this.data = {};
 
     this.margin = {
         all: 5,
@@ -26,13 +26,16 @@ function smartbox(id, w, h) {
         bottom: 0,
         label_height: 20
     }
-// h = 150, is this right?  ..
-// 200 - 10 - 10 - 10 - 10 - 12 = no should be 148
+
     this.style = {
         bar: { fill: '#7FDBFF' },
         text: {
             value: { "font-size": 14, fill: "#111111" },
-            label: { "font-size": 14, fill: "#111111" }
+            label: { "font-size": 14, fill: "#111111" },
+            vertical: {
+                value: { "text-anchor": "end" },
+                label: {  }
+            }
         }
     }
     this.init();
@@ -79,6 +82,22 @@ smartbox.prototype.init = function() {
     this.setAnchorBottom();
 }
 
+smartbox.prototype.addData = function(k, magnitude) {
+    if( typeof this.data[k] == "undefined" ) {
+        this.data[k] = 0;
+        this.range.length++;
+    }
+
+    if( typeof magnitude == 'undefined') {
+        this.data[k]++;
+    } else {
+        this.data[k] += parseFloat(magnitude);
+    }
+
+    if( this.data[k] < this.range.min ) this.range.min = this.data[k];
+    if( this.data[k] > this.range.max ) this.range.max = this.data[k];
+}
+/*
 smartbox.prototype.setData = function(d) {
     for( var k in d ) {
         if( d[k] < this.range.min ) this.range.min = d[k];
@@ -91,6 +110,7 @@ smartbox.prototype.setData = function(d) {
         this.range.length++;
     }
 }
+*/
 
 smartbox.prototype.getChunkX = function() {
     var margins = (this.margin.all*2) + this.margin.left + this.margin.right;
@@ -102,8 +122,9 @@ smartbox.prototype.getChunkX = function() {
 }
 
 smartbox.prototype.getX = function(i) {
-    var chunk = this.getChunkX(i);
+    var chunk = this.getChunkX();
     var pos = this.margin.all + this.margin.left + (i * chunk);
+
     //var cumulative_spacings = (this.range.length - 1) * this.margin.spacing;
     //var partial_spacing = i * (cumulative_spacings / this.range.length-5);
     //return( pos + partial_spacing );
@@ -135,47 +156,63 @@ smartbox.prototype.XY = function(nx, ny, nw, nh) {
 smartbox.prototype.doDraw = function() {
     var tw = this.getChunkX() - this.margin.spacing;
 
-    for( var i = 0; i < this.range.length; i++ ) {
-        var x = this.getX(i);
-        var h = this.getY(this.data[i].v);
+    var index = 0;
+    for( var k in this.data ) {//}(function(k, v, i) {
+        this.drawBar(k, this.data[k], index, tw);
+        index++;
+    };
+}
 
-        if( this.anchor_top ) {
-            var y = this.margin.all + this.margin.top + this.margin.label_height;
+smartbox.prototype.drawBar = function(k, v, i, tw) {
+    //eturn;
+    var x = this.getX(i);
+    var h = this.getY(v);
 
-            // key label
-            var ky = (this.margin.all) + this.margin.top + 10;
+    if( this.anchor_top ) {
+        var y = this.margin.all + this.margin.top + this.margin.label_height;
 
-            // value label positions
-            var vx = x + (tw / 2);
-            var vy = y + h + 10;
+        // key label
+        var ky = (this.margin.all) + this.margin.top + 10;
 
-            if( vy > (this.h - this.margin.bottom - this.margin.all) ) {
-                vy = y + h - 10;
-            }
-        } else {
-            var y = this.h - this.margin.bottom - this.margin.label_height - this.margin.all - h;
+        // value label positions
+        var vx = x + (tw / 2);
+        var vy = y + h + 10;
 
-            // key label
-            var ky = this.h - (this.margin.all) - this.margin.bottom - 10;
-
-            // value label positions
-            var vx = x + (tw / 2);
-            var vy = y - 10;// - this.margin.label_height;
-
-            if( vy < (this.margin.all + this.margin.top + 10) ) {
-                vy = y + 10;
-            }
+        if( vy > (this.h - this.margin.bottom - this.margin.all) ) {
+            vy = y + h - 10;
         }
+    } else {
+        var y = this.h - this.margin.bottom - this.margin.label_height - this.margin.all - h;
 
-        var T1 = this.XY(x, y, tw, h);
-        var T2 = this.XY( vx, vy, 0, 0 );
-        var T3 = this.XY( vx, ky, 0, 0 );
+        // key label
+        var ky = this.h - (this.margin.all) - this.margin.bottom - 10;
 
-        var r = this.paper.rect( T1.x, T1.y, T1.w, T1.h ).attr( this.style.bar );
-        this.paper.text( T2.x, T2.y, this.data[i].v ).attr( this.style.text.value );
-        this.paper.text( T3.x, T3.y, this.data[i].k ).attr( this.style.text.label );
+        // value label positions
+        var vx = x + (tw / 2);
+        var vy = y - 10;// - this.margin.label_height;
+
+        if( vy < (this.margin.all + this.margin.top + 10) ) {
+            vy = y + 10;
+        }
+    }
+
+// console.warn( k, v, i, tw );
+// console.info( "    x = ", x, "    y = ", y, "    tw = ", tw, "    h = ", h );
+    var T1 = this.XY(x, y, tw, h);
+    var T2 = this.XY( vx, vy, 0, 0 );
+    var T3 = this.XY( vx, ky, 0, 0 );
+
+    var r = this.paper.rect( T1.x, T1.y, T1.w, T1.h ).attr( this.style.bar );
+    var l1 = this.paper.text( T2.x, T2.y, v ).attr( this.style.text.value );
+    var l2 = this.paper.text( T3.x, T3.y, k ).attr( this.style.text.label );
+
+    if( this.horizontal === false ) {
+        l1.attr(this.style.text.vertical.value);
+        l2.attr(this.style.text.vertical.label);
     }
 }
+
+
 
 
 
