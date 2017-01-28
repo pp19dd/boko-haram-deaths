@@ -45,39 +45,13 @@ var json_data = <?php readfile("data-clean.json"); ?>;
 var json_map = <?php readfile("map.json"); ?>;
 
 var e_map = new smartmap("map", 800, 600);
+//e_map.init();
+//console.info( typeof e_map );
+
 e_map.paper.setViewBox(0, 155, 525, 390);
 for( var state in json_map )(function(key, path) {
     e_map.addPlace(key, path);
 })(state, json_map[state]);
-
-
-// ===========================================================================
-// draw map
-// ===========================================================================
-/*
-var paper_map = Raphael("map", 800, 600);
-var rainbow = new Rainbow();
-var map_states = {};
-
-paper_map.setViewBox(0, 155, 525, 390);
-
-for( var state in json_map )(function(key, path) {
-    var s = paper_map.path( path );
-    s.attr({
-        //fill: "#85144b",
-        "stroke-width": "1px",
-        "stroke-opacity": "0.9"
-    });
-    s.mouseover(function() {
-        this.stop().toFront().animate({ opacity: 0.7}, 300, "<>");
-        console.info( key );
-    });
-    s.mouseout(function() {
-        this.stop().toFront().animate({ opacity: 1}, 300, "<>");
-    });
-    map_states[state] = s;
-})(state, json_map[state]);
-*/
 
 // ===========================================================================
 // incidents over time
@@ -99,6 +73,11 @@ for( var i = 0; i < json_data.rows.length; i ++ ) {
     e_timeline.addData(json_data.rows[i].y, json_data.rows[i].f);
     e_dow.addData(json_data.rows[i].d, json_data.rows[i].f);
     e_type.addData(json_data.rows[i].e, json_data.rows[i].f);
+
+    var place_name = json_data.keys.shorten.ADMIN1[json_data.rows[i].l];
+    place_name = place_name.toLowerCase();
+    place_name = place_name.split(" ").join("_");
+    e_map.addData(place_name, json_data.rows[i].f);
 }
 
 // console.dir( fatalities_by_state );
@@ -116,6 +95,9 @@ e_type
     .setMargin("all", 10)
     .setVertical()
     .setAnchorTop()
+    .doDraw();
+
+e_map
     .doDraw();
 
 //timeline.drawMargins();

@@ -90,9 +90,9 @@ smartbox.prototype.init = function(id, w, h) {
     }
 
     this.paper = Raphael(this.id, this.w, this.h);
-    //console.info( "raphaeling " + this.id );
+
     this.rainbow = new Rainbow();
-    this.rainbow.setSpectrum("black", "orange", "crimson");
+    this.rainbow.setSpectrum("white", "orange", "red", "purple");
     this.setHorizontal();
     this.setAnchorBottom();
 }
