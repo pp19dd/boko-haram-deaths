@@ -80,8 +80,8 @@ smartbox.prototype.init = function(id, w, h) {
     this.style = {
         bar: { fill: '#7FDBFF' },
         text: {
-            value: { "font-size": 14, fill: "#111111" },
-            label: { "font-size": 14, fill: "#111111" },
+            value: { "font-family": "Roboto", "font-size": 14, fill: "#dddddd" },
+            label: { "font-family": "Roboto", "font-size": 14, fill: "#aaaaaa" },
             vertical: {
                 value: { "text-anchor": "end" },
                 label: {  }
@@ -92,7 +92,7 @@ smartbox.prototype.init = function(id, w, h) {
     this.paper = Raphael(this.id, this.w, this.h);
 
     this.rainbow = new Rainbow();
-    this.rainbow.setSpectrum("silver",  "crimson");
+    this.rainbow.setSpectrum("#333333", "#FF851B", "#ff4136");
     this.setHorizontal();
     this.setAnchorBottom();
 }

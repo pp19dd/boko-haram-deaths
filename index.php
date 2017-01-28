@@ -2,8 +2,22 @@
 <html>
 <head>
 <title>Boko Haram Deaths</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <style>
-body, html { height: 100%; width: 100%; margin:0; padding:0; }
+body, html {
+    height: 100%;
+    width: 100%;
+    margin:0;
+    padding:0;
+    background-color: #222;
+    color: #DDDDDD;
+}
+h3 {
+    background-color: #AAAAAA;
+    padding:0.25em;
+    color: #111;
+    font-family: 'Roboto', sans-serif;
+}
 content { padding: 1em; display: block }
 .chart { margin-bottom: 1em }
 #timeline { width: 800px; height:150px; }
