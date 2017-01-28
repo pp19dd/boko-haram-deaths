@@ -60,7 +60,7 @@ smartbox.prototype.init = function(id, w, h) {
     this.anchor_top = false;
 
     this.range = {
-        min: Infinity,
+        min: -Infinity,
         max: -Infinity,
         length: 0
     }
@@ -92,7 +92,7 @@ smartbox.prototype.init = function(id, w, h) {
     this.paper = Raphael(this.id, this.w, this.h);
 
     this.rainbow = new Rainbow();
-    this.rainbow.setSpectrum("white", "orange", "red", "purple");
+    this.rainbow.setSpectrum("silver",  "crimson");
     this.setHorizontal();
     this.setAnchorBottom();
 }
@@ -109,7 +109,7 @@ smartbox.prototype.addData = function(k, magnitude) {
         this.data[k] += parseFloat(magnitude);
     }
 
-    if( this.data[k] < this.range.min ) this.range.min = this.data[k];
+    if( -this.data[k] > this.range.min ) this.range.min = this.data[k];
     if( this.data[k] > this.range.max ) this.range.max = this.data[k];
 
     return( this );
