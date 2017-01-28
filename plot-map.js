@@ -34,6 +34,8 @@ smartmap.prototype.doDraw = function() {
     // var p = this.paper.path(path);
     var that = this;
 
+    this.rainbow.setNumberRange(this.range.min, this.range.max);
+
     for( k in this.e )(function(k, e) {
         if( typeof that.data[k] == "undefined" ) return;
 
