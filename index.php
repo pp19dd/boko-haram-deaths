@@ -17,11 +17,13 @@ content { padding: 1em; display: block }
 svg tspan, svg text { pointer-events: none }
 </style>
 <script src="raphael.min.js"></script>
+<script src="rainbowvis.js"></script>
 <script src="plot.js?ts=<?php echo time() ?>"></script>
+<script src="plot-map.js?ts=<?php echo time() ?>"></script>
 </head>
 <body>
     <content>
-        <h3>Incidents Over Time</h3>
+        <h3>Fatalities In Nigeria</h3>
 
         <div style="float:right">
             <h3>Days of The Week</h3>
@@ -30,7 +32,6 @@ svg tspan, svg text { pointer-events: none }
             <div class="chart" id="e_type"></div>
         </div>
         <div class="chart" id="timeline"></div>
-        <div class="chart" id="fatalities"></div>
         <div class="chart" id="map" style="float:left"></div>
 
 <!--
@@ -39,15 +40,28 @@ svg tspan, svg text { pointer-events: none }
     </content>
     <div id="chart"></div>
 <script>
-var data = <?php readfile("data-clean.json"); ?>;
-var map = <?php readfile("map.json"); ?>;
+
+var json_data = <?php readfile("data-clean.json"); ?>;
+var json_map = <?php readfile("map.json"); ?>;
+
+var e_map = new smartmap("map", 800, 600);
+e_map.paper.setViewBox(0, 155, 525, 390);
+for( var state in json_map )(function(key, path) {
+    e_map.addPlace(key, path);
+})(state, json_map[state]);
+
 
 // ===========================================================================
 // draw map
 // ===========================================================================
+/*
 var paper_map = Raphael("map", 800, 600);
+var rainbow = new Rainbow();
+var map_states = {};
+
 paper_map.setViewBox(0, 155, 525, 390);
-for( var state in map )(function(key, path) {
+
+for( var state in json_map )(function(key, path) {
     var s = paper_map.path( path );
     s.attr({
         //fill: "#85144b",
@@ -61,77 +75,51 @@ for( var state in map )(function(key, path) {
     s.mouseout(function() {
         this.stop().toFront().animate({ opacity: 1}, 300, "<>");
     });
-})(state, map[state]);
+    map_states[state] = s;
+})(state, json_map[state]);
+*/
 
 // ===========================================================================
 // incidents over time
 // ===========================================================================
-var timeline = new smartbox("timeline", 800, 150);
-var fatalities = new smartbox("fatalities", 800, 150);
-fatalities.setAnchorTop();
-var dow = new smartbox("dow", 200, 300);
+var e_timeline = new smartbox("timeline", 800, 150);
+var e_dow = new smartbox("dow", 200, 300);
 var e_type = new smartbox("e_type", 300, 400);
 
-var fatalities_by_year = {};
+var fatalities_by_state = {};
 
-for( var i = 0; i < data.rows.length; i ++ ) {
-    if( data.rows[i].b == "N" ) continue;
+for( var i = 0; i < json_data.rows.length; i ++ ) {
+    // if( data.rows[i].b == "N" ) continue;
 
+    if( typeof fatalities_by_state[json_data.rows[i].l] == "undefined" ) {
+        fatalities_by_state[json_data.rows[i].l] = 0;
+    }
+    fatalities_by_state[json_data.rows[i].l] += parseFloat(json_data.rows[i].f);
 
-    //var year = data.rows[i].y;
-    // if( typeof fatalities_by_year[year] == 'undefined' ) fatalities_by_year[year] = 0;
-    // fatalities_by_year[year] += parseInt(data.rows[i].f);
-
-    fatalities.addData(data.rows[i].y, data.rows[i].f);
-
-    dow.addData(data.rows[i].d, data.rows[i].f);
-    timeline.addData(data.rows[i].y);
-    e_type.addData(data.rows[i].e, data.rows[i].f);
+    e_timeline.addData(json_data.rows[i].y, json_data.rows[i].f);
+    e_dow.addData(json_data.rows[i].d, json_data.rows[i].f);
+    e_type.addData(json_data.rows[i].e, json_data.rows[i].f);
 }
 
-//timeline.setData( data.YEAR );
-//timeline.setData( data.FATALITIES );
-timeline.margin.all = 10;
-timeline.doDraw();
+// console.dir( fatalities_by_state );
+e_timeline
+    .setMargin("all", 10)
+    .doDraw();
 
-fatalities.margin.all = 10;
-fatalities.doDraw();
+e_dow
+    .setMargin("all", 10)
+    .setVertical()
+    .setAnchorTop()
+    .doDraw();
 
-dow.margin.all = 10;
-dow.setVertical();
-dow.setAnchorTop();
-dow.doDraw();
-
-e_type.margin.all = 10;
-e_type.setVertical();
-e_type.setAnchorTop();
-e_type.doDraw();
+e_type
+    .setMargin("all", 10)
+    .setVertical()
+    .setAnchorTop()
+    .doDraw();
 
 //timeline.drawMargins();
 
-/*
-var bh = new smartbox("bh", 300, 300 );
-bh.setData( data.BOKO_HARAM );
-bh.doDraw();
-
-
-var e_type = new smartbox("e_type", 400, 600 );
-e_type.setVertical();
-e_type.setAnchorTop();
-e_type.margin.all = 25;
-e_type.margin.spacing = 30;
-e_type.setData( data.EVENT_TYPE );
-e_type.doDraw();
-
-var dow = new smartbox("dow", 300, 600 );
-dow.setData( data.DAY_OF_WEEK );
-dow.doDraw();
-
-var fatalities = new smartbox("fatalities", 800, 600 );
-fatalities.setData( data.FATALITIES );
-fatalities.margin.all = 25;
-fatalities.doDraw();
-*/
 </script>
 </body>
 </html>

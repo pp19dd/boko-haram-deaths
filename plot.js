@@ -1,5 +1,55 @@
 
 function smartbox(id, w, h) {
+    this.init(id, w, h);
+}
+
+smartbox.prototype.setAnchorTop = function() {
+    this.anchor_top = true;
+    return( this );
+}
+
+smartbox.prototype.setMargin = function(k, a) {
+    this.margin[k] = a;
+    return( this );
+}
+
+smartbox.prototype.setAnchorBottom = function() {
+    this.anchor_top = false
+    return( this );
+}
+
+smartbox.prototype.setHorizontal = function() {
+    this.horizontal = true;
+    return( this );
+}
+
+smartbox.prototype.setVertical = function() {
+    this.horizontal = false;
+
+    var temp = this.w;
+    this.w = this.h;
+    this.h = temp;
+
+    return( this );
+}
+
+// used for debugging geometry
+smartbox.prototype.drawMargins = function() {
+    var x = this.margin.all + this.margin.left;
+    var y = this.margin.all + this.margin.top;
+    var w = this.w - this.margin.all - this.margin.right - x;
+    var h = this.h - this.margin.all - this.margin.bottom - y;
+
+    // console.info( "all  | width = ", this.w, "height = ", this.h );
+    // console.info( "rect | x = ", x, "y = ", y, "w = ", w, "h = ", h );
+    // console.dir( this.margin );
+    this.paper.rect(x, y, w, h).attr({
+        fill: "yellow", opacity: 0.3
+    });
+    return( this );
+}
+
+smartbox.prototype.init = function(id, w, h) {
     this.paper = null;
 
     this.id = id;
@@ -38,46 +88,11 @@ function smartbox(id, w, h) {
             }
         }
     }
-    this.init();
-}
 
-smartbox.prototype.setAnchorTop = function() {
-    this.anchor_top = true;
-}
-
-smartbox.prototype.setAnchorBottom = function() {
-    this.anchor_top = false
-}
-
-smartbox.prototype.setHorizontal = function() {
-    this.horizontal = true;
-}
-
-smartbox.prototype.setVertical = function() {
-    this.horizontal = false;
-
-    var temp = this.w;
-    this.w = this.h;
-    this.h = temp;
-}
-
-// used for debugging geometry
-smartbox.prototype.drawMargins = function() {
-    var x = this.margin.all + this.margin.left;
-    var y = this.margin.all + this.margin.top;
-    var w = this.w - this.margin.all - this.margin.right - x;
-    var h = this.h - this.margin.all - this.margin.bottom - y;
-
-    // console.info( "all  | width = ", this.w, "height = ", this.h );
-    // console.info( "rect | x = ", x, "y = ", y, "w = ", w, "h = ", h );
-    // console.dir( this.margin );
-    this.paper.rect(x, y, w, h).attr({
-        fill: "yellow", opacity: 0.3
-    });
-}
-
-smartbox.prototype.init = function() {
     this.paper = Raphael(this.id, this.w, this.h);
+    //console.info( "raphaeling " + this.id );
+    this.rainbow = new Rainbow();
+    this.rainbow.setSpectrum("black", "orange", "crimson");
     this.setHorizontal();
     this.setAnchorBottom();
 }
@@ -96,6 +111,8 @@ smartbox.prototype.addData = function(k, magnitude) {
 
     if( this.data[k] < this.range.min ) this.range.min = this.data[k];
     if( this.data[k] > this.range.max ) this.range.max = this.data[k];
+
+    return( this );
 }
 /*
 smartbox.prototype.setData = function(d) {
@@ -156,11 +173,15 @@ smartbox.prototype.XY = function(nx, ny, nw, nh) {
 smartbox.prototype.doDraw = function() {
     var tw = this.getChunkX() - this.margin.spacing;
 
+    this.rainbow.setNumberRange(this.range.min, this.range.max);
+
     var index = 0;
     for( var k in this.data ) {//}(function(k, v, i) {
         this.drawBar(k, this.data[k], index, tw);
         index++;
     };
+
+    return( this );
 }
 
 smartbox.prototype.drawBar = function(k, v, i, tw) {
@@ -206,10 +227,15 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
     var l1 = this.paper.text( T2.x, T2.y, v ).attr( this.style.text.value );
     var l2 = this.paper.text( T3.x, T3.y, k ).attr( this.style.text.label );
 
+    var fill = "#" + this.rainbow.colourAt(v);
+    r.attr({ fill: fill });
+
     if( this.horizontal === false ) {
         l1.attr(this.style.text.vertical.value);
         l2.attr(this.style.text.vertical.label);
     }
+
+    return( this );
 }
 
 
