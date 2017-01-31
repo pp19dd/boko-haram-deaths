@@ -37,10 +37,10 @@ svg tspan, svg text { pointer-events: none }
 </head>
 <body>
     <content>
-        <h3>Fatalities In Nigeria</h3>
+        <h3>Fatalities in Nigeria</h3>
 
         <div style="float:right">
-            <h3>Days of The Week</h3>
+            <h3>Days of the Week</h3>
             <div class="chart" id="dow"></div>
             <h3>Types of Event</h3>
             <div class="chart" id="e_type"></div>
@@ -58,6 +58,17 @@ svg tspan, svg text { pointer-events: none }
 var json_data = <?php readfile("data-clean.json"); ?>;
 var json_map = <?php readfile("map.json"); ?>;
 
+// ===========================================================================
+// re-inflate data in memory
+// ===========================================================================
+for( var i = 0; i < json_data.rows.length; i ++ ) {
+    var place_name = json_data.keys.shorten.ADMIN1[json_data.rows[i].l];
+    place_name = place_name.toLowerCase();
+    place_name = place_name.split(" ").join("_");
+    json_data.rows[i].place_name = place_name;
+}
+
+
 var e_map = new smartmap("map", 800, 600);
 //e_map.init();
 //console.info( typeof e_map );
@@ -67,6 +78,11 @@ for( var state in json_map )(function(key, path) {
     e_map.addPlace(key, path);
 })(state, json_map[state]);
 
+var filters = [function(x) {
+    if( x > 1000 ) return( true );
+    return( false );
+}];
+
 // ===========================================================================
 // incidents over time
 // ===========================================================================
@@ -74,24 +90,17 @@ var e_timeline = new smartbox("timeline", 800, 150);
 var e_dow = new smartbox("dow", 200, 300);
 var e_type = new smartbox("e_type", 300, 400);
 
-var fatalities_by_state = {};
+e_timeline.filters = filters;
+e_timeline.dow = filters;
+e_timeline.e_type = filters;
 
 for( var i = 0; i < json_data.rows.length; i ++ ) {
-    // if( data.rows[i].b == "N" ) continue;
-
-    if( typeof fatalities_by_state[json_data.rows[i].l] == "undefined" ) {
-        fatalities_by_state[json_data.rows[i].l] = 0;
-    }
-    fatalities_by_state[json_data.rows[i].l] += parseFloat(json_data.rows[i].f);
+    // if( json_data.rows[i].b == "N" ) continue;
 
     e_timeline.addData(json_data.rows[i].y, json_data.rows[i].f);
     e_dow.addData(json_data.rows[i].d, json_data.rows[i].f);
     e_type.addData(json_data.rows[i].e, json_data.rows[i].f);
-
-    var place_name = json_data.keys.shorten.ADMIN1[json_data.rows[i].l];
-    place_name = place_name.toLowerCase();
-    place_name = place_name.split(" ").join("_");
-    e_map.addData(place_name, json_data.rows[i].f);
+    e_map.addData(json_data.rows[i].place_name, json_data.rows[i].f);
 }
 
 // console.dir( fatalities_by_state );

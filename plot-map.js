@@ -1,19 +1,10 @@
 
 function smartmap(id, w, h) {
     this.init(id, w, h);
-    this.e = {};
 }
 
 smartmap.prototype = Object.create(smartbox.prototype);
 smartmap.prototype.constructor = smartmap;
-
-// smartmap.prototype = Object.create(smartbox.prototype);
-// smartmap.prototype.constructor = smartmap;
-
-//var smartmap = function(id, w, h) {
-    // this.init(id, w, h);
-    // this.e = {}
-//}
 
 smartmap.prototype.addPlace = function(k, path) {
     var p = this.paper.path(path);
@@ -45,9 +36,3 @@ smartmap.prototype.doDraw = function() {
     })(k, this.e[k]);
 
 }
-// smartmap.prototype.doDraw = function() {
-//     //console.info( "WAT ");
-// }
-/*
-}
-*/

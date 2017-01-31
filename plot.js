@@ -3,6 +3,11 @@ function smartbox(id, w, h) {
     this.init(id, w, h);
 }
 
+// thx S/O # 2901298
+smartbox.prototype.num = function(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 smartbox.prototype.setAnchorTop = function() {
     this.anchor_top = true;
     return( this );
@@ -40,9 +45,6 @@ smartbox.prototype.drawMargins = function() {
     var w = this.w - this.margin.all - this.margin.right - x;
     var h = this.h - this.margin.all - this.margin.bottom - y;
 
-    // console.info( "all  | width = ", this.w, "height = ", this.h );
-    // console.info( "rect | x = ", x, "y = ", y, "w = ", w, "h = ", h );
-    // console.dir( this.margin );
     this.paper.rect(x, y, w, h).attr({
         fill: "yellow", opacity: 0.3
     });
@@ -52,9 +54,12 @@ smartbox.prototype.drawMargins = function() {
 smartbox.prototype.init = function(id, w, h) {
     this.paper = null;
 
+    this.filters = [];
     this.id = id;
     this.w = w;
     this.h = h;
+
+    this.e = {};
 
     this.horizontal = true;
     this.anchor_top = false;
@@ -98,9 +103,14 @@ smartbox.prototype.init = function(id, w, h) {
 }
 
 smartbox.prototype.addData = function(k, magnitude) {
+
     if( typeof this.data[k] == "undefined" ) {
         this.data[k] = 0;
         this.range.length++;
+    }
+
+    for( f = 0; f < this.filters.length; f++ ) {
+        // if( k, )
     }
 
     if( typeof magnitude == 'undefined') {
@@ -114,20 +124,6 @@ smartbox.prototype.addData = function(k, magnitude) {
 
     return( this );
 }
-/*
-smartbox.prototype.setData = function(d) {
-    for( var k in d ) {
-        if( d[k] < this.range.min ) this.range.min = d[k];
-        if( d[k] > this.range.max ) this.range.max = d[k];
-
-        this.data.push({
-            k: k,
-            v: d[k]
-        });
-        this.range.length++;
-    }
-}
-*/
 
 smartbox.prototype.getChunkX = function() {
     var margins = (this.margin.all*2) + this.margin.left + this.margin.right;
@@ -185,9 +181,10 @@ smartbox.prototype.doDraw = function() {
 }
 
 smartbox.prototype.drawBar = function(k, v, i, tw) {
-    //eturn;
     var x = this.getX(i);
     var h = this.getY(v);
+
+    var th = this.h;
 
     if( this.anchor_top ) {
         var y = this.margin.all + this.margin.top + this.margin.label_height;
@@ -217,14 +214,16 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
         }
     }
 
-// console.warn( k, v, i, tw );
-// console.info( "    x = ", x, "    y = ", y, "    tw = ", tw, "    h = ", h );
     var T1 = this.XY(x, y, tw, h);
     var T2 = this.XY( vx, vy, 0, 0 );
     var T3 = this.XY( vx, ky, 0, 0 );
 
+    var T4 = this.XY( x, this.margin.all + this.margin.top, tw, th );
+
+    var prefix = "b" + i + "_";
+
     var r = this.paper.rect( T1.x, T1.y, T1.w, T1.h ).attr( this.style.bar );
-    var l1 = this.paper.text( T2.x, T2.y, v ).attr( this.style.text.value );
+    var l1 = this.paper.text( T2.x, T2.y, this.num(v) ).attr( this.style.text.value );
     var l2 = this.paper.text( T3.x, T3.y, k ).attr( this.style.text.label );
 
     var fill = "#" + this.rainbow.colourAt(v);
@@ -234,6 +233,26 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
         l1.attr(this.style.text.vertical.value);
         l2.attr(this.style.text.vertical.label);
     }
+
+    var trigger = this.paper.rect(
+        T4.x, T4.y, T4.w, T4.h
+    ).attr({ opacity: 0, fill: 'white' });
+
+    trigger.mouseover(function() {
+        l1.show();
+        r.stop().animate({transform: "s1.2", opacity: 0.5 }, 100, "<>");
+        //l2.show();
+    }).mouseout(function() {
+        l1.hide();
+        r.stop().animate({transform: "r0", opacity: 1 }, 100, "<>");
+        //l2.hide();
+    }).click(function() {
+        console.info( "filter k = " + k);
+    });
+
+    this.e[prefix + "bar"] = r;
+    this.e[prefix + "label1"] = l1;
+    this.e[prefix + "label2"] = l2;
 
     return( this );
 }
