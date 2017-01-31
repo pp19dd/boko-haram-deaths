@@ -102,23 +102,44 @@ smartbox.prototype.init = function(id, w, h) {
     this.setAnchorBottom();
 }
 
-smartbox.prototype.addData = function(k, magnitude) {
+smartbox.prototype.applyFilters = function(filters) {
+    this.filters = filters;
+    for( var i = 0; i < this.original_data.length; i++ ) {
+        this.addData(
+            this.original_data[i],
+            this.original_data_key,
+            this.original_data[i][this.original_data_mag]
+        );
+    }
+}
+
+smartbox.prototype.setData = function(data_rows, data_key, data_mag) {
+    this.original_data = data_rows;
+    this.original_data_key = data_key;
+    this.original_data_mag = data_mag;
+}
+
+smartbox.prototype.addData = function(data_row, data_key, magnitude) {
+
+    var k = data_row[data_key];
 
     if( typeof this.data[k] == "undefined" ) {
         this.data[k] = 0;
         this.range.length++;
     }
 
+    var count_filtered = 0;
     for( f = 0; f < this.filters.length; f++ ) {
-        // if( k, )
+        count_filtered += this.filters[f](data_row, data_key);
     }
 
-    if( typeof magnitude == 'undefined') {
-        this.data[k]++;
-    } else {
-        this.data[k] += parseFloat(magnitude);
+    if( count_filtered == 0 ) {
+        if( typeof magnitude == 'undefined') {
+            this.data[k]++;
+        } else {
+            this.data[k] += parseFloat(magnitude);
+        }
     }
-
     if( -this.data[k] > this.range.min ) this.range.min = this.data[k];
     if( this.data[k] > this.range.max ) this.range.max = this.data[k];
 
@@ -217,7 +238,6 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
     var T1 = this.XY(x, y, tw, h);
     var T2 = this.XY( vx, vy, 0, 0 );
     var T3 = this.XY( vx, ky, 0, 0 );
-
     var T4 = this.XY( x, this.margin.all + this.margin.top, tw, th );
 
     var prefix = "b" + i + "_";
