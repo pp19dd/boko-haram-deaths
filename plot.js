@@ -201,7 +201,7 @@ smartbox.prototype.doDraw = function() {
     return( this );
 }
 
-smartbox.prototype.drawBar = function(k, v, i, tw) {
+smartbox.prototype.getGeometry = function(k, v, i, tw) {
     var x = this.getX(i);
     var h = this.getY(v);
 
@@ -235,19 +235,23 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
         }
     }
 
-    var T1 = this.XY(x, y, tw, h);
-    var T2 = this.XY( vx, vy, 0, 0 );
-    var T3 = this.XY( vx, ky, 0, 0 );
-    var T4 = this.XY( x, this.margin.all + this.margin.top, tw, th );
+    return({
+        T1: this.XY(x, y, tw, h),
+        T2: this.XY( vx, vy, 0, 0 ),
+        T3: this.XY( vx, ky, 0, 0 ),
+        T4: this.XY( x, this.margin.all + this.margin.top, tw, th ),
+        fill: "#" + this.rainbow.colourAt(v)
+    });
+}
 
-    var prefix = "b" + i + "_";
+smartbox.prototype.drawBar = function(k, v, i, tw) {
 
-    var r = this.paper.rect( T1.x, T1.y, T1.w, T1.h ).attr( this.style.bar );
-    var l1 = this.paper.text( T2.x, T2.y, this.num(v) ).attr( this.style.text.value );
-    var l2 = this.paper.text( T3.x, T3.y, k ).attr( this.style.text.label );
+    var g = this.getGeometry(k, v, i, tw);
 
-    var fill = "#" + this.rainbow.colourAt(v);
-    r.attr({ fill: fill });
+    var r = this.paper.rect( g.T1.x, g.T1.y, g.T1.w, g.T1.h ).attr( this.style.bar );
+    var l1 = this.paper.text( g.T2.x, g.T2.y, this.num(v) ).attr( this.style.text.value );
+    var l2 = this.paper.text( g.T3.x, g.T3.y, k ).attr( this.style.text.label );
+    r.attr({ fill: g.fill });
 
     if( this.horizontal === false ) {
         l1.attr(this.style.text.vertical.value);
@@ -255,7 +259,7 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
     }
 
     var trigger = this.paper.rect(
-        T4.x, T4.y, T4.w, T4.h
+        g.T4.x, g.T4.y, g.T4.w, g.T4.h
     ).attr({ opacity: 0, fill: 'white' });
 
     trigger.mouseover(function() {
@@ -270,10 +274,12 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
         console.info( "filter k = " + k);
     });
 
+    var prefix = "b" + i + "_";
     this.e[prefix + "bar"] = r;
     this.e[prefix + "label1"] = l1;
     this.e[prefix + "label2"] = l2;
 
+    this.e[prefix + "geometry"] = g;
     return( this );
 }
 
