@@ -13,12 +13,15 @@ body, html {
     color: #DDDDDD;
 }
 h3 {
-    background-color: #AAAAAA;
+    xbackground-color: #AAAAAA;
+    xcolor: #111;
+    color: #3D9970;
     padding:0.25em;
-    color: #111;
     font-family: 'Roboto', sans-serif;
+    display: inline;
+
 }
-content { padding: 1em; display: block }
+content { padding: 1em; display: block; width: 1150px }
 .chart { margin-bottom: 1em }
 #timeline { width: 800px; height:150px; }
 #fatalities { width: 800px; height:150px; }
@@ -29,6 +32,18 @@ content { padding: 1em; display: block }
 #bh { width: 300px; height:300px;  }
 
 svg tspan, svg text { pointer-events: none }
+
+presets { display: flex; margin-bottom:2em;  }
+preset {
+    padding: 1em;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.15em;
+    flex-basis: 0;
+    flex-grow: 2;
+}
+preset:hover { text-decoration: underline; color: white }
+.active  { background-color: #AAAAAA }
 </style>
 <script src="raphael.min.js"></script>
 <script src="rainbowvis.js"></script>
@@ -37,6 +52,13 @@ svg tspan, svg text { pointer-events: none }
 </head>
 <body>
     <content>
+        <presets>
+            <preset onclick="preset(1, this)">Most violence throughout the years occurred in Borno state.</preset>
+            <preset onclick="preset(2, this)">There has been a noticable downtick on Friday killings in 2015.</preset>
+            <preset onclick="preset(3, this)">Boko Haram involvement has ticked up.</preset>
+            <preset onclick="preset(4, this)">Reset Filters</preset>
+        </presets>
+
         <h3>Fatalities in Nigeria</h3>
 
         <div style="float:right">
@@ -44,13 +66,13 @@ svg tspan, svg text { pointer-events: none }
             <div class="chart" id="dow"></div>
             <h3>Types of Event</h3>
             <div class="chart" id="e_type"></div>
+            <h3>Boko Haram as Actor</h3>
+            <div class="chart" id="boko"></div>
+
         </div>
         <div class="chart" id="timeline"></div>
         <div class="chart" id="map" style="float:left"></div>
 
-<!--
-        <div class="chart" id="bh"></div>
--->
     </content>
     <div id="chart"></div>
 <script>
@@ -70,28 +92,15 @@ for( var i = 0; i < json_data.rows.length; i ++ ) {
 
 
 var e_map = new smartmap("map", 800, 600);
-//e_map.init();
-//console.info( typeof e_map );
-
 e_map.paper.setViewBox(0, 155, 525, 390);
 for( var state in json_map )(function(key, path) {
     e_map.addPlace(key, path);
 })(state, json_map[state]);
 
-
-var current_year = 1997;
-
-var filters = [
-    function(data_row, data_key) {
-        if( parseInt(data_row["y"]) == current_year ) return( 0 );
-        return( 1 );
-    }/*,
-    function(data_row, data_key) {
-        // return( 0 );
-        if( data_row["d"] == "F" ) return( 0 );
-        return( 1 );
-    }*/
-];
+// ===========================================================================
+// currently global
+// ===========================================================================
+var filters = { };
 
 // ===========================================================================
 // incidents over time
@@ -99,59 +108,36 @@ var filters = [
 var e_timeline = new smartbox("timeline", 800, 150);
 var e_dow = new smartbox("dow", 200, 300);
 var e_type = new smartbox("e_type", 300, 400);
+var e_boko = new smartbox("boko", 100, 80);
 
 e_timeline.setData(json_data.rows, "y", "f");
 e_dow.setData(json_data.rows, "d", "f");
 e_type.setData(json_data.rows, "e", "f");
 e_map.setData(json_data.rows, "place_name", "f");
+e_boko.setData(json_data.rows, "b", "f");
 
-e_timeline.applyFilters(filters);
+function join_filters() {
+    reset_menu();
 
-var phase = true;
-setInterval(function() {
     e_timeline.applyFilters(filters);
-    e_timeline.doDraw();
-
     e_dow.applyFilters(filters);
     e_type.applyFilters(filters);
     e_map.applyFilters(filters);
+    e_boko.applyFilters(filters);
 
+    e_timeline.doDraw();
     e_dow.doDraw();
     e_type.doDraw();
     e_map.doDraw();
-
-    current_year++;
-    if( current_year > 2015 ) current_year = 1997;
-    //console.info( "filter = ", current_year );
-/*    phase = !phase;
-
-    if( phase ) {
-        e_timeline.applyFilters([]);
-        e_timeline.doDraw();
-        console.info( "filter: empty" );
-    } else {
-        e_timeline.applyFilters(filters);
-        e_timeline.doDraw();
-        console.info( "filter: " + filters.length );
-    }*/
-}, 500);
-
-e_dow.applyFilters(filters);
-e_type.applyFilters(filters);
-e_map.applyFilters(filters);
-
-/*
-for( var i = 0; i < json_data.rows.length; i ++ ) {
-    // if( json_data.rows[i].b == "N" ) continue;
-
-    e_timeline.addData(json_data.rows[i], "y", json_data.rows[i].f);
-    e_dow.addData(json_data.rows[i], "d", json_data.rows[i].f);
-    e_type.addData(json_data.rows[i], "e", json_data.rows[i].f);
-    e_map.addData(json_data.rows[i], "place_name", json_data.rows[i].f);
+    e_boko.doDraw();
 }
-*/
 
-// console.dir( fatalities_by_state );
+e_timeline.setFilterEvent( join_filters );
+e_dow.setFilterEvent( join_filters );
+e_type.setFilterEvent( join_filters );
+e_map.setFilterEvent( join_filters );
+e_boko.setFilterEvent( join_filters );
+
 e_timeline
     .setMargin("all", 10)
     .doDraw();
@@ -168,8 +154,44 @@ e_type
     .setAnchorTop()
     .doDraw();
 
+// hardcoded temporarily
+var f = { "text-anchor": "start" }
+for( var i = 0; i < 9; i++ ) {
+    var temp_key = "b" + i + "_label2";
+    e_type.e[temp_key].attr(f).attr({ text: json_data.keys.shorten.EVENT_TYPE[i+1] });
+}
+
 e_map
     .doDraw();
+
+e_boko
+    .setVertical()
+    .setAnchorTop()
+    .doDraw();
+
+
+function reset_menu() {
+    var presets = document.querySelectorAll("preset");
+    for( var i = 0; i < presets.length; i++ ) {
+        presets[i].className = "";
+    }
+}
+
+function preset(p, that) {
+//    reset_menu();
+
+    switch( p ) {
+        case 1: filters = { place_name: { key: "place_name", value: "borno" } }; break;
+        case 2: filters = { d: { key: "d", value: "F" } }; break;
+        case 3: filters = { b: { key: "b", value: "Y" } }; break;
+        case 4: filters = {}; break;
+    }
+
+    join_filters();
+    that.className = "active";
+
+}
+
 
 //timeline.drawMargins();
 

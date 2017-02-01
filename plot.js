@@ -83,10 +83,13 @@ smartbox.prototype.init = function(id, w, h) {
     }
 
     this.style = {
+        animation_time: 300,
         bar: { fill: '#7FDBFF' },
+        trigger: { fill: 'white', opacity: 0, cursor: 'pointer'},
         text: {
             value: { "font-family": "Roboto", "font-size": 14, fill: "#dddddd" },
             label: { "font-family": "Roboto", "font-size": 14, fill: "#aaaaaa" },
+            over: { fill: "orange" },
             vertical: {
                 value: { "text-anchor": "end" },
                 label: {  }
@@ -129,6 +132,17 @@ smartbox.prototype.setData = function(data_rows, data_key, data_mag) {
     this.applyFilters([]);
 }
 
+smartbox.prototype.rowHide = function(data_row) {
+    for( var fk in filters ) {
+    //for( var i = 0; i < this.filters.length; i++ ) {
+        var ck = filters[fk].key;
+        var cv = filters[fk].value;
+
+        if( data_row[ck] != cv ) return( true );
+    }
+    return( false );
+}
+
 smartbox.prototype.addData = function(data_row, data_key, magnitude) {
 
     var k = data_row[data_key];
@@ -138,18 +152,28 @@ smartbox.prototype.addData = function(data_row, data_key, magnitude) {
         this.range.length++;
     }
 
-    var count_filtered = 0;
-    for( f = 0; f < this.filters.length; f++ ) {
-        count_filtered += this.filters[f](data_row, data_key);
-    }
-
-    if( count_filtered == 0 ) {
+    if( this.rowHide(data_row) == false ) {
         if( typeof magnitude == 'undefined') {
             this.data[k]++;
         } else {
             this.data[k] += parseFloat(magnitude);
         }
     }
+
+    //if( this.rowFiltered(data_row, data_key)
+    // var count_filtered = 0;
+    // for( f = 0; f < this.filters.length; f++ ) {
+    //     count_filtered += this.filters[f](data_row, data_key);
+    // }
+
+    // if( count_filtered == 0 ) {
+    //     if( typeof magnitude == 'undefined') {
+    //         this.data[k]++;
+    //     } else {
+    //         this.data[k] += parseFloat(magnitude);
+    //     }
+    // }
+
     if( -this.data[k] > this.range.min ) this.range.min = this.data[k];
     if( this.data[k] > this.range.max ) this.range.max = this.data[k];
 
@@ -200,7 +224,11 @@ smartbox.prototype.XY = function(nx, ny, nw, nh) {
 smartbox.prototype.doDraw = function() {
     var tw = this.getChunkX() - this.margin.spacing;
 
-    this.rainbow.setNumberRange(this.range.min, this.range.max);
+    try {
+        this.rainbow.setNumberRange(this.range.min, this.range.max);
+    } catch( e ) {
+
+    }
 
     var index = 0;
     for( var k in this.data ) {//}(function(k, v, i) {
@@ -245,6 +273,12 @@ smartbox.prototype.getGeometry = function(k, v, i, tw) {
         }
     }
 
+    try {
+        var color = "#" + this.rainbow.colourAt(v);
+    } catch( err ) {
+        var color = "#ffffff";
+    }
+
     return({
         k: k,
         v: v,
@@ -254,14 +288,21 @@ smartbox.prototype.getGeometry = function(k, v, i, tw) {
         T2: this.XY( vx, vy, 0, 0 ),
         T3: this.XY( vx, ky, 0, 0 ),
         T4: this.XY( x, this.margin.all + this.margin.top, tw, th ),
-        fill: "#" + this.rainbow.colourAt(v)
+        fill: color
     });
 }
 
+smartbox.prototype.setFilterEvent = function(f) {
+    this.trigger_filter_events = f;
+}
+
 smartbox.prototype.drawBarFirst = function(g) {
+    var that = this;
+
     var r = this.paper.rect( g.T1.x, g.T1.y, g.T1.w, g.T1.h ).attr( this.style.bar );
     var l1 = this.paper.text( g.T2.x, g.T2.y, this.num(g.v) ).attr( this.style.text.value );
     var l2 = this.paper.text( g.T3.x, g.T3.y, g.k ).attr( this.style.text.label );
+
     r.attr({ fill: g.fill });
 
     if( this.horizontal === false ) {
@@ -271,18 +312,35 @@ smartbox.prototype.drawBarFirst = function(g) {
 
     var trigger = this.paper.rect(
         g.T4.x, g.T4.y, g.T4.w, g.T4.h
-    ).attr({ opacity: 0, fill: 'white' });
+    );
+    trigger.attr( this.style.trigger );
 
     trigger.mouseover(function() {
-        l1.show();
-        r.stop().animate({transform: "s1.2", opacity: 0.5 }, 100, "<>");
-        //l2.show();
+        //if( this.status().length > 0 ) return;
+        // l1.show();
+        r.stop().animate({transform: "s1.2", opacity: 0.5 }, that.style.animation_time, "<>");
+        l2.attr(that.style.text.over);
     }).mouseout(function() {
-        l1.hide();
-        r.stop().animate({transform: "r0", opacity: 1 }, 100, "<>");
-        //l2.hide();
+        // l1.hide();
+        //if( this.status().length > 0 ) return;
+        r.stop().animate({transform: "r0", opacity: 1 }, that.style.animation_time, "<>");
+        l2.attr(that.style.text.label);
     }).click(function() {
-        console.info( "filter k = " + g.k);
+        var filter_id = that.original_data_key;
+        if( typeof filters[filter_id] == "undefined" ) {
+            filters[filter_id] = {
+                key: that.original_data_key,
+                value: g.k
+            };
+        } else {
+            // selecting a different bar, or toggling same one?
+            if( filters[filter_id].value == g.k ) {
+                delete filters[filter_id];
+            } else {
+                filters[filter_id].value = g.k;
+            }
+        }
+        that.trigger_filter_events();
     });
 
     return({
@@ -291,7 +349,6 @@ smartbox.prototype.drawBarFirst = function(g) {
 }
 
 smartbox.prototype.drawBar = function(k, v, i, tw) {
-
     var g = this.getGeometry(k, v, i, tw);
 
     var prefix = "b" + i + "_";
@@ -308,20 +365,21 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
             this.e[prefix + "bar"].stop().animate({
                 width: g.T1.w,
                 fill: g.fill
-            }, 100, "<>");
+            }, this.style.animation_time, "<>");
         } else {
             this.e[prefix + "bar"].stop().animate({
                 y: g.T1.y,
                 height: g.T1.h,
                 fill: g.fill
-            }, 100, "<>");
+            }, this.style.animation_time, "<>");
         }
 
         this.e[prefix + "label1"].attr({
             "text": this.num(g.v)
         }).stop().animate({
+            x: g.T2.x,
             y: g.T2.y
-        }, 100, "<>");
+        }, this.style.animation_time, "<>");
         //var l1 = this.paper.text( g.T2.x, g.T2.y, this.num(g.v) ).attr( this.style.text.value );
 
 
