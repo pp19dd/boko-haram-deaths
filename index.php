@@ -78,17 +78,19 @@ for( var state in json_map )(function(key, path) {
     e_map.addPlace(key, path);
 })(state, json_map[state]);
 
+
+var current_year = 1997;
+
 var filters = [
     function(data_row, data_key) {
-        return( 0 );
-        if( data_row["y"] == "2015" ) return( 0 );
+        if( parseInt(data_row["y"]) == current_year ) return( 0 );
         return( 1 );
-    },
+    }/*,
     function(data_row, data_key) {
         // return( 0 );
         if( data_row["d"] == "F" ) return( 0 );
         return( 1 );
-    }
+    }*/
 ];
 
 // ===========================================================================
@@ -104,6 +106,36 @@ e_type.setData(json_data.rows, "e", "f");
 e_map.setData(json_data.rows, "place_name", "f");
 
 e_timeline.applyFilters(filters);
+
+var phase = true;
+setInterval(function() {
+    e_timeline.applyFilters(filters);
+    e_timeline.doDraw();
+
+    e_dow.applyFilters(filters);
+    e_type.applyFilters(filters);
+    e_map.applyFilters(filters);
+
+    e_dow.doDraw();
+    e_type.doDraw();
+    e_map.doDraw();
+
+    current_year++;
+    if( current_year > 2015 ) current_year = 1997;
+    //console.info( "filter = ", current_year );
+/*    phase = !phase;
+
+    if( phase ) {
+        e_timeline.applyFilters([]);
+        e_timeline.doDraw();
+        console.info( "filter: empty" );
+    } else {
+        e_timeline.applyFilters(filters);
+        e_timeline.doDraw();
+        console.info( "filter: " + filters.length );
+    }*/
+}, 500);
+
 e_dow.applyFilters(filters);
 e_type.applyFilters(filters);
 e_map.applyFilters(filters);
