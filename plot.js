@@ -104,6 +104,14 @@ smartbox.prototype.init = function(id, w, h) {
 
 smartbox.prototype.applyFilters = function(filters) {
     this.filters = filters;
+
+    this.data = {};
+    this.range = {
+        min: -Infinity,
+        max: -Infinity,
+        length: 0
+    }
+
     for( var i = 0; i < this.original_data.length; i++ ) {
         this.addData(
             this.original_data[i],
@@ -117,6 +125,8 @@ smartbox.prototype.setData = function(data_rows, data_key, data_mag) {
     this.original_data = data_rows;
     this.original_data_key = data_key;
     this.original_data_mag = data_mag;
+
+    this.applyFilters([]);
 }
 
 smartbox.prototype.addData = function(data_row, data_key, magnitude) {
@@ -236,6 +246,10 @@ smartbox.prototype.getGeometry = function(k, v, i, tw) {
     }
 
     return({
+        k: k,
+        v: v,
+        i: i,
+        tw: tw,
         T1: this.XY(x, y, tw, h),
         T2: this.XY( vx, vy, 0, 0 ),
         T3: this.XY( vx, ky, 0, 0 ),
@@ -244,13 +258,10 @@ smartbox.prototype.getGeometry = function(k, v, i, tw) {
     });
 }
 
-smartbox.prototype.drawBar = function(k, v, i, tw) {
-
-    var g = this.getGeometry(k, v, i, tw);
-
+smartbox.prototype.drawBarFirst = function(g) {
     var r = this.paper.rect( g.T1.x, g.T1.y, g.T1.w, g.T1.h ).attr( this.style.bar );
-    var l1 = this.paper.text( g.T2.x, g.T2.y, this.num(v) ).attr( this.style.text.value );
-    var l2 = this.paper.text( g.T3.x, g.T3.y, k ).attr( this.style.text.label );
+    var l1 = this.paper.text( g.T2.x, g.T2.y, this.num(g.v) ).attr( this.style.text.value );
+    var l2 = this.paper.text( g.T3.x, g.T3.y, g.k ).attr( this.style.text.label );
     r.attr({ fill: g.fill });
 
     if( this.horizontal === false ) {
@@ -271,15 +282,52 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
         r.stop().animate({transform: "r0", opacity: 1 }, 100, "<>");
         //l2.hide();
     }).click(function() {
-        console.info( "filter k = " + k);
+        console.info( "filter k = " + g.k);
     });
 
-    var prefix = "b" + i + "_";
-    this.e[prefix + "bar"] = r;
-    this.e[prefix + "label1"] = l1;
-    this.e[prefix + "label2"] = l2;
+    return({
+        r: r, l1: l1, l2: l2, trigger: trigger
+    });
+}
 
-    this.e[prefix + "geometry"] = g;
+smartbox.prototype.drawBar = function(k, v, i, tw) {
+
+    var g = this.getGeometry(k, v, i, tw);
+
+    var prefix = "b" + i + "_";
+    if( typeof this.e[prefix + "bar"] == "undefined" ) {
+        var bar = this.drawBarFirst(g);
+
+        this.e[prefix + "bar"] = bar.r;
+        this.e[prefix + "label1"] = bar.l1;
+        this.e[prefix + "label2"] = bar.l2;
+        this.e[prefix + "geometry"] = g;
+    } else {
+
+        if( this.horizontal === false ) {
+            this.e[prefix + "bar"].stop().animate({
+                width: g.T1.w,
+                fill: g.fill
+            }, 100, "<>");
+        } else {
+            this.e[prefix + "bar"].stop().animate({
+                y: g.T1.y,
+                height: g.T1.h,
+                fill: g.fill
+            }, 100, "<>");
+        }
+
+        this.e[prefix + "label1"].attr({
+            "text": this.num(g.v)
+        }).stop().animate({
+            y: g.T2.y
+        }, 100, "<>");
+        //var l1 = this.paper.text( g.T2.x, g.T2.y, this.num(g.v) ).attr( this.style.text.value );
+
+
+    }
+
+
     return( this );
 }
 
