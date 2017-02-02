@@ -14,7 +14,7 @@ smartmap.prototype.constructor = smartmap;
 smartmap.prototype.addPlace = function(k, path) {
     var p = this.paper.path(path);
     var that = this;
-    p.attr({ fill: "white", cursor: "pointer" });
+    p.attr({ fill: "black", cursor: "pointer" });
     p.mouseover(function() {
         // if( this.status().length > 0 ) return;
         this.stop().toFront().animate({ opacity: 0.3}, that.style.animation_time, "<>");

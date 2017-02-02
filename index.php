@@ -3,7 +3,7 @@
 <head>
 <title>Boko Haram Deaths</title>
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
-<link href="project.css" rel="stylesheet" />
+<link href="project.css?ts=<?php echo time() ?>" rel="stylesheet" />
 <script src="js/raphael.min.js"></script>
 <script src="js/rainbowvis.js"></script>
 <script src="plot.js?ts=<?php echo time() ?>"></script>
@@ -13,21 +13,15 @@
     <content class="noselect">
         <presets>
             <preset onclick="preset(1, this)">Most violence throughout the years occurred in Borno state.</preset>
-            <preset onclick="preset(2, this)">There has been a noticable downtick on Friday killings in 2015.</preset>
-            <preset onclick="preset(3, this)">Boko Haram involvement has ticked up.</preset>
-            <preset onclick="preset(4, this)">Reset Filters</preset>
+            <preset onclick="preset(2, this)">Boko Haram involvement has ticked up.</preset>
+            <preset onclick="preset(3, this)">Reset Filters</preset>
         </presets>
 
         <h3>Fatalities in Nigeria</h3>
 
         <div style="float:right">
-            <h3>Days of the Week</h3>
-            <div class="chart" id="dow"></div>
-            <h3>Types of Event</h3>
-            <div class="chart" id="e_type"></div>
             <h3>Boko Haram as Actor</h3>
             <div class="chart" id="boko"></div>
-
         </div>
         <div class="chart" id="timeline"></div>
         <div class="chart" id="map" style="float:left"></div>
@@ -47,8 +41,9 @@ for( var i = 0; i < json_data.rows.length; i ++ ) {
     place_name = place_name.toLowerCase();
     place_name = place_name.split(" ").join("_");
     json_data.rows[i].place_name = place_name;
-}
 
+
+}
 
 var e_map = new smartmap("map", 800, 600);
 e_map.paper.setViewBox(0, 155, 525, 390);
@@ -64,61 +59,49 @@ var filters = { };
 // ===========================================================================
 // incidents over time
 // ===========================================================================
-var e_timeline = new smartbox("timeline", 800, 150);
-var e_dow = new smartbox("dow", 200, 300);
-var e_type = new smartbox("e_type", 300, 400);
+var e_timeline = new smartbox("timeline", 400, 150);
 var e_boko = new smartbox("boko", 100, 80);
 
 e_timeline.setData(json_data.rows, "y", "f");
-e_dow.setData(json_data.rows, "d", "f");
-e_type.setData(json_data.rows, "e", "f");
 e_map.setData(json_data.rows, "place_name", "f");
 e_boko.setData(json_data.rows, "b", "f");
 
+// ===========================================================================
+// filtration system is temporary
+// ===========================================================================
 function join_filters() {
     reset_menu();
 
     e_timeline.applyFilters(filters);
-    e_dow.applyFilters(filters);
-    e_type.applyFilters(filters);
     e_map.applyFilters(filters);
     e_boko.applyFilters(filters);
 
     e_timeline.doDraw();
-    e_dow.doDraw();
-    e_type.doDraw();
     e_map.doDraw();
     e_boko.doDraw();
 }
 
 e_timeline.setFilterEvent( join_filters );
-e_dow.setFilterEvent( join_filters );
-e_type.setFilterEvent( join_filters );
 e_map.setFilterEvent( join_filters );
 e_boko.setFilterEvent( join_filters );
 
+
+// ===========================================================================
+// last minute fix, namely map draw
+// ===========================================================================
+for( var state in json_map )(function(key, path) {
+    if( typeof e_map.data[state] == "undefined" ) {
+        e_map.data[state] = 0;
+        //console.info( state );
+    }
+})(state, json_map[state]);
+
+// ===========================================================================
+// draw main components
+// ===========================================================================
 e_timeline
     .setMargin("all", 10)
     .doDraw();
-
-e_dow
-    .setMargin("all", 10)
-    .setVertical()
-    .setAnchorTop()
-    .doDraw();
-
-e_type
-    .setMargin("all", 10)
-    .setVertical()
-    .setAnchorTop()
-    .doDraw();
-
-// hardcoded temporarily
-var f = { "text-anchor": "start" }
-for( var i = 0; i < 9; i++ ) {
-    var temp_key = "b" + i + "_label2";
-    e_type.e[temp_key].attr(f).attr({ text: json_data.keys.shorten.EVENT_TYPE[i+1] });
-}
 
 e_map
     .doDraw();
@@ -128,7 +111,9 @@ e_boko
     .setAnchorTop()
     .doDraw();
 
-
+// ===========================================================================
+// webpage menus and interaction
+// ===========================================================================
 function reset_menu() {
     var presets = document.querySelectorAll("preset");
     for( var i = 0; i < presets.length; i++ ) {
@@ -137,22 +122,15 @@ function reset_menu() {
 }
 
 function preset(p, that) {
-//    reset_menu();
-
     switch( p ) {
         case 1: filters = { place_name: { key: "place_name", value: "borno" } }; break;
-        case 2: filters = { d: { key: "d", value: "F" } }; break;
-        case 3: filters = { b: { key: "b", value: "Y" } }; break;
-        case 4: filters = {}; break;
+        case 2: filters = { b: { key: "b", value: "Y" } }; break;
+        case 3: filters = {}; break;
     }
 
     join_filters();
     that.className = "active";
-
 }
-
-
-//timeline.drawMargins();
 
 </script>
 </body>
