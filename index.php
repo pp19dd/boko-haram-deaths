@@ -77,7 +77,7 @@ preset:hover { text-decoration: underline; color: white }
     <div id="chart"></div>
 <script>
 
-var json_data = <?php readfile("data-clean.json"); ?>;
+var json_data = <?php readfile("data-clean-2016.json"); ?>;
 var json_map = <?php readfile("map.json"); ?>;
 
 // ===========================================================================

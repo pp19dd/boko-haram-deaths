@@ -1,4 +1,6 @@
 <?php
+define( "CSV_FILE_INPUT", "ACLED_Nigeria_2016.csv" );
+define( "JSON_FILE_OUTPUT", "data-clean-2016.json" );
 
 # define( "LIMIT", 10 );
 
@@ -87,7 +89,7 @@ function pre($a, $live = false) {
 
 $count = 0;
 
-$fp = fopen("ACLED_Nigeria.csv", "rt");
+$fp = fopen(CSV_FILE_INPUT, "rt");
 $h = fgetcsv($fp);
 $data = array();
 
@@ -207,8 +209,8 @@ $output = array(
     "rows" => $data
 );
 
-file_put_contents("data-clean.json", json_encode($output) );
-echo number_format(filesize("data-clean.json")) . " bytes";
+file_put_contents(JSON_FILE_OUTPUT, json_encode($output) );
+echo number_format(filesize(JSON_FILE_OUTPUT)) . " bytes";
 
 
 #pre( json_encode($output, JSON_PRETTY_PRINT) );
