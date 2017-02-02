@@ -1,6 +1,6 @@
 <?php
 define( "CSV_FILE_INPUT", "ACLED_Nigeria_2016.csv" );
-define( "JSON_FILE_OUTPUT", "data-clean-2016.json" );
+define( "JSON_FILE_OUTPUT", "../data-clean-2016.json" );
 
 # define( "LIMIT", 10 );
 
@@ -116,16 +116,40 @@ while( !feof($fp) ) {
 
     $row = array_combine(array_values($h), $r);
 
+    // 2017-02-02 editorial reduction
+    if( intval($row["YEAR"]) < 2009 ) continue;
+
+    if( !in_array($row["ACTOR1"], array(
+        "Boko Haram - Wilayat Gharb Ifriqiyyah",
+        "Boko Haram - Jamaatu Ahli is-Sunnah lid-Dawatai wal-Jihad",
+        "Civilian JTF: Civilian Joint Task Force",
+        "Military Forces of Nigeria (1999-2015)",
+        "Military Forces of Nigeria (1999-2015) Joint Task Force",
+        "Military Forces of Nigeria (2015-)",
+        "Military Forces of Nigeria (2015-) Joint Task Force",
+        "Police Forces of Nigeria (1999-2015)",
+        "Police Forces of Nigeria (2015-)"
+    )) ) continue;
+
+    if( $row["EVENT_TYPE"] != "Violence against civilians" ) continue;
+
+    $row["BOKO_HARAM_INVOLVED"] = "no";
+    if( stripos($row["ACTOR1"], "boko") !== false ) {
+        $row["BOKO_HARAM_INVOLVED"] = "yes";
+    }
+
+    // end reduction
+
     foreach( $row as $k => $v) {
 
         // boko-haram as a participant?
-        if( $k === "ACTOR1" || $k === "ACTOR2" ) {
-            if( stripos($v, "boko") !== false ) {
-                $row["BOKO_HARAM_INVOLVED"] = "yes";
-            } else {
-                $row["BOKO_HARAM_INVOLVED"] = "no";
-            }
-        }
+        // if( $k === "ACTOR1" || $k === "ACTOR2" ) {
+        //     if( stripos($v, "boko") !== false ) {
+        //         $row["BOKO_HARAM_INVOLVED"] = "yes";
+        //     } else {
+        //         $row["BOKO_HARAM_INVOLVED"] = "no";
+        //     }
+        // }
 
         if( $k == "GWNO" ) continue;
         if( $k == "EVENT_ID_NO_CNTY" ) continue;
