@@ -1,0 +1,55 @@
+
+body, html {
+    height: 100%;
+    width: 100%;
+    margin:0;
+    padding:0;
+    background-color: #222;
+    color: #DDDDDD;
+}
+h3 {
+    xbackground-color: #AAAAAA;
+    xcolor: #111;
+    color: #3D9970;
+    padding:0.25em;
+    font-family: 'Roboto', sans-serif;
+    display: inline;
+
+}
+
+/* thanks, s/o # 4407335 */
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+content {
+    padding: 1em; display: block; width: 1150px;
+}
+.chart { margin-bottom: 1em }
+#timeline { width: 800px; height:150px; }
+#fatalities { width: 800px; height:150px; }
+#map  { width: 800px; height:600px; }
+#e_type { width: 300px; height:400px; }
+#dow { width: 200px; height:300px; }
+
+#bh { width: 300px; height:300px;  }
+
+svg tspan, svg text { pointer-events: none }
+
+presets { display: flex; margin-bottom:2em;  }
+preset {
+    padding: 1em;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.15em;
+    flex-basis: 0;
+    flex-grow: 2;
+}
+preset:hover { text-decoration: underline; color: white }
+.active  { background-color: #AAAAAA }
