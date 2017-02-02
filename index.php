@@ -21,7 +21,21 @@ h3 {
     display: inline;
 
 }
-content { padding: 1em; display: block; width: 1150px }
+
+/* thanks, s/o # 4407335 */
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+content {
+    padding: 1em; display: block; width: 1150px;
+}
 .chart { margin-bottom: 1em }
 #timeline { width: 800px; height:150px; }
 #fatalities { width: 800px; height:150px; }
@@ -45,13 +59,13 @@ preset {
 preset:hover { text-decoration: underline; color: white }
 .active  { background-color: #AAAAAA }
 </style>
-<script src="raphael.min.js"></script>
-<script src="rainbowvis.js"></script>
+<script src="js/raphael.min.js"></script>
+<script src="js/rainbowvis.js"></script>
 <script src="plot.js?ts=<?php echo time() ?>"></script>
 <script src="plot-map.js?ts=<?php echo time() ?>"></script>
 </head>
 <body>
-    <content>
+    <content class="noselect">
         <presets>
             <preset onclick="preset(1, this)">Most violence throughout the years occurred in Borno state.</preset>
             <preset onclick="preset(2, this)">There has been a noticable downtick on Friday killings in 2015.</preset>

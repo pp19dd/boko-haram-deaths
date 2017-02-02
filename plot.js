@@ -385,6 +385,13 @@ smartbox.prototype.drawBar = function(k, v, i, tw) {
 
     }
 
+    if( g.v == 0 ) {
+        this.e[prefix + "label1"].attr({ opacity: 0 });
+        this.e[prefix + "label2"].attr({ opacity: 0.3 });
+    } else {
+        this.e[prefix + "label1"].attr({ opacity: 1 });
+        this.e[prefix + "label2"].attr({ opacity: 1 });
+    }
 
     return( this );
 }
