@@ -15,20 +15,48 @@ smartmap.prototype.addPlace = function(k, path) {
     var p = this.paper.path(path);
     var that = this;
     p.attr({ fill: "black", cursor: "pointer" });
-    p.mouseover(function() {
-        // if( this.status().length > 0 ) return;
-        this.stop().toFront().animate({ opacity: 0.3}, that.style.animation_time, "<>");
+    p.mouseover(function(e) {
+        if( this.__disable == true ) return;
+
+        this.stop().animate({ opacity: 0.3}, that.style.animation_time, "<>");
+        that.tooltip.show();
+        var b = this.getBBox();
+
+        var n = k.split("_");
+        for( var i = 0; i < n.length; i++ ) {
+            n[i] = n[i].substr(0,1).toUpperCase() + n[i].substr(1);
+        }
+
+        var text = n.join(" ");
+        if( that.data[k] > 0 ) {
+            text += ": " + that.num(that.data[k]) + " Fatalities";
+        }
+
+        // write text, then measure its box
+        var tx = b.cx;
+        var ty = b.cy;
+        that.tooltip.toFront().attr({ opacity: 0, text: text });
+        var b2 = that.tooltip.getBBox();
+
+        // apply any adjustments so text doesn't clip
+        if( b2.x < 0 ) tx += 10 -b2.x;
+
+        // show tooltip
+        that.tooltip.attr({
+            x: tx,
+            y: ty,
+        }).animate({
+            opacity: 1,
+        }, that.style.animation_time, "<>");
+
     }).mouseout(function() {
-        // if( this.status().length > 0 ) return;
-        this.stop().toFront().animate({ opacity: 1}, that.style.animation_time, "<>");
-    }).mousemove(function(e) {
-        //console.info( e.clientX, e.clientY );
-        that.tooltip.toFront().attr({
-            x: e.clientX- 150,
-            y: e.clientY- 200,
-            text: k
-        });
+        if( this.__disable == true ) return;
+
+        this.stop().animate({ opacity: 1}, that.style.animation_time, "<>");
+        that.tooltip.hide();
     }).click(function() {
+        if( this.__disable == true ) return;
+        
         var filter_id = that.original_data_key;
         if( typeof filters[filter_id] == "undefined" ) {
             filters[filter_id] = {
@@ -46,6 +74,7 @@ smartmap.prototype.addPlace = function(k, path) {
         that.trigger_filter_events();
     });
 
+    p.__disable = false;
     this.e[k] = p;
 }
 

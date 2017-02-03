@@ -14,7 +14,16 @@ h3 {
     padding:0.25em;
     font-family: 'Roboto', sans-serif;
     display: inline;
+}
 
+credits {
+    display: block;
+    clear: both;
+    padding: 1em;
+}
+
+credits p {
+    font-family: 'Roboto', sans-serif;
 }
 
 /* thanks, s/o # 4407335 */
@@ -33,10 +42,10 @@ content {
     display: block;
     width: 800px;
 }
-.chart { margin-bottom: 1em }
+.chart { margin-bottom: 1em; border:1px solid #333 }
 #timeline { width: 400px; height:150px; }
 #map  { width: 800px; height:600px; }
-#bh { width: 300px; height:300px;  }
+#boko { width: 380px; height:100px; padding-top:50px; }
 
 svg tspan, svg text { pointer-events: none }
 
@@ -47,9 +56,11 @@ preset {
     padding: 1em;
     cursor: pointer;
     font-family: 'Roboto', sans-serif;
-    font-size: 1.15em;
+    font-size: 1em;
     flex-basis: 0;
     flex-grow: 2;
 }
 preset:hover { text-decoration: underline; color: white }
 .active  { background-color: #AAAAAA }
+
+clr { clear: both }

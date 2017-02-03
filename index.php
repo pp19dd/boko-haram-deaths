@@ -27,7 +27,11 @@
         <div class="chart" id="map" style="float:left"></div>
 
     </content>
-    <div id="chart"></div>
+    <clr></clr>
+    <credits>
+        <p><strong>Data Source</strong>: Armed Conflict Location &amp; Event Data Project.</p>
+        <p>The ACLED data is derived from media and secondary reports.  It may be subject to error and likely undereports the number of fatalities.</p>
+    </credits>
 <script>
 
 var json_data = <?php readfile("data-clean-2016.json"); ?>;
@@ -60,7 +64,7 @@ var filters = { };
 // incidents over time
 // ===========================================================================
 var e_timeline = new smartbox("timeline", 400, 150);
-var e_boko = new smartbox("boko", 100, 80);
+var e_boko = new smartbox("boko", 380, 80);
 
 e_timeline.setData(json_data.rows, "y", "f");
 e_map.setData(json_data.rows, "place_name", "f");
@@ -92,9 +96,12 @@ e_boko.setFilterEvent( join_filters );
 for( var state in json_map )(function(key, path) {
     if( typeof e_map.data[state] == "undefined" ) {
         e_map.data[state] = 0;
-        //console.info( state );
     }
 })(state, json_map[state]);
+e_map.e.water_body.__disable = true;
+e_map.e.water_body.attr({ cursor: 'default'});
+
+
 
 // ===========================================================================
 // draw main components

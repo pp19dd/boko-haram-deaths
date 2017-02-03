@@ -5,7 +5,12 @@ function smartbox(id, w, h) {
 
 // thx S/O # 2901298
 smartbox.prototype.num = function(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    try {
+        var ret = x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    } catch( e ) {
+        var ret = "";
+    }
+    return( ret );
 }
 
 smartbox.prototype.setAnchorTop = function() {
