@@ -40,7 +40,7 @@ credits p {
 content {
     padding: 1em;
     display: block;
-    width: 800px;
+    width: 1050px;
 }
 .chart { margin-bottom: 1em; border:1px solid #333 }
 #timeline { width: 400px; height:150px; }

@@ -14,17 +14,19 @@
         <presets>
             <preset onclick="preset(1, this)">Most violence throughout the years occurred in Borno state.</preset>
             <preset onclick="preset(2, this)">Boko Haram involvement has ticked up.</preset>
-            <preset onclick="preset(3, this)">Reset Filters</preset>
+            <preset onclick="preset(3, this)">2014 Friday Activity</preset>
+            <preset onclick="preset(4, this)">Reset Filters</preset>
         </presets>
 
         <h3>Fatalities in Nigeria</h3>
-
         <div style="float:right">
             <h3>Boko Haram as Actor</h3>
             <div class="chart" id="boko"></div>
         </div>
         <div class="chart" id="timeline"></div>
-        <div class="chart" id="map" style="float:left"></div>
+<div class="chart" id="e_dow" style="float:right"></div>
+        <div class="chart" id="map"></div>
+
 
     </content>
     <clr></clr>
@@ -65,10 +67,12 @@ var filters = { };
 // ===========================================================================
 var e_timeline = new smartbox("timeline", 400, 150);
 var e_boko = new smartbox("boko", 380, 80);
+var e_dow = new smartbox("e_dow", 220, 270);
 
 e_timeline.setData(json_data.rows, "y", "f");
 e_map.setData(json_data.rows, "place_name", "f");
 e_boko.setData(json_data.rows, "b", "f");
+e_dow.setData(json_data.rows, "d", "f");
 
 // ===========================================================================
 // filtration system is temporary
@@ -79,15 +83,18 @@ function join_filters() {
     e_timeline.applyFilters(filters);
     e_map.applyFilters(filters);
     e_boko.applyFilters(filters);
+    e_dow.applyFilters(filters);
 
     e_timeline.doDraw();
     e_map.doDraw();
     e_boko.doDraw();
+    e_dow.doDraw();
 }
 
 e_timeline.setFilterEvent( join_filters );
 e_map.setFilterEvent( join_filters );
 e_boko.setFilterEvent( join_filters );
+e_dow.setFilterEvent( join_filters );
 
 
 // ===========================================================================
@@ -113,6 +120,11 @@ e_timeline
 e_map
     .doDraw();
 
+e_dow
+    .setVertical()
+    .setAnchorTop()
+    .doDraw();
+
 e_boko
     .setVertical()
     .setAnchorTop()
@@ -132,7 +144,8 @@ function preset(p, that) {
     switch( p ) {
         case 1: filters = { place_name: { key: "place_name", value: "borno" } }; break;
         case 2: filters = { b: { key: "b", value: "Y" } }; break;
-        case 3: filters = {}; break;
+        case 3: filters = { y: { key: "y", value: "2014" } }; break;
+        case 4: filters = {}; break;
     }
 
     join_filters();
