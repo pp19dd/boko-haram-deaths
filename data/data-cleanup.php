@@ -122,13 +122,13 @@ while( !feof($fp) ) {
     if( !in_array($row["ACTOR1"], array(
         "Boko Haram - Wilayat Gharb Ifriqiyyah",
         "Boko Haram - Jamaatu Ahli is-Sunnah lid-Dawatai wal-Jihad",
-        "Civilian JTF: Civilian Joint Task Force",
-        "Military Forces of Nigeria (1999-2015)",
-        "Military Forces of Nigeria (1999-2015) Joint Task Force",
-        "Military Forces of Nigeria (2015-)",
-        "Military Forces of Nigeria (2015-) Joint Task Force",
-        "Police Forces of Nigeria (1999-2015)",
-        "Police Forces of Nigeria (2015-)"
+        # "Civilian JTF: Civilian Joint Task Force",
+        # "Military Forces of Nigeria (1999-2015)",
+        # "Military Forces of Nigeria (1999-2015) Joint Task Force",
+        # "Military Forces of Nigeria (2015-)",
+        # "Military Forces of Nigeria (2015-) Joint Task Force",
+        # "Police Forces of Nigeria (1999-2015)",
+        # "Police Forces of Nigeria (2015-)"
     )) ) continue;
 
     if( $row["EVENT_TYPE"] != "Violence against civilians" ) continue;

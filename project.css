@@ -6,6 +6,7 @@ body, html {
     padding:0;
     background-color: #222;
     color: #DDDDDD;
+    overflow: hidden;
 }
 h3 {
     xbackground-color: #AAAAAA;
@@ -40,10 +41,9 @@ credits p {
 content {
     padding: 1em;
     display: block;
-    width: 1050px;
 }
 .chart { margin-bottom: 1em; border:1px solid #333 }
-#timeline { width: 400px; height:150px; }
+#timeline { width: 800px; height:150px; }
 #map  { width: 800px; height:600px; }
 #boko { width: 380px; height:100px; padding-top:50px; }
 
