@@ -35,13 +35,13 @@
 
 
     </content>
-<!--
     <clr></clr>
     <credits>
         <p><strong>Data Source</strong>: Armed Conflict Location &amp; Event Data Project.</p>
         <p>The ACLED data is derived from media and secondary reports.  It may be subject to error and likely undereports the number of fatalities.</p>
         <p>These figures do not include deaths of terrorists or Nigerian police or military.</p>
     </credits>
+    <!--
 -->
 <script>
 
