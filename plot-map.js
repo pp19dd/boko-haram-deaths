@@ -2,7 +2,7 @@
 function smartmap(id, w, h) {
     this.init(id, w, h);
 
-    this.tooltip = this.paper.text(1,1, "LOL");
+    this.tooltip = this.paper.text(1,1, "");
     this.tooltip.attr({
         fill: "white"
     })
@@ -56,7 +56,7 @@ smartmap.prototype.addPlace = function(k, path) {
         that.tooltip.hide();
     }).click(function() {
         if( this.__disable == true ) return;
-        
+
         var filter_id = that.original_data_key;
         if( typeof filters[filter_id] == "undefined" ) {
             filters[filter_id] = {
