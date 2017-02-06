@@ -4,6 +4,8 @@
 <title>Boko Haram Deaths</title>
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
 <link href="project.css?ts=<?php echo time() ?>" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script type="text/javascript" src="pym.v1.min.js"></script>
 <script src="js/raphael.min.js"></script>
 <script src="js/rainbowvis.js"></script>
 <script src="plot.js?ts=<?php echo time() ?>"></script>
@@ -58,7 +60,7 @@ for( var i = 0; i < json_data.rows.length; i ++ ) {
 
 }
 
-var e_map = new smartmap("map", 800, 600);
+var e_map = new smartmap("map", 800, 358);
 e_map.paper.setViewBox(0, 155, 525, 390);
 for( var state in json_map )(function(key, path) {
     e_map.addPlace(key, path);
@@ -159,6 +161,29 @@ function preset(p, that) {
     join_filters();
     that.className = "active";
 }
+
+e_timeline.paper.setViewBox(0,0,800,150);
+
+var pc = new pym.Child();
+
+function resize_event_handler() {
+    var w = $(window).width() - 30;
+    var h = $(window).height();
+
+    var h1 = (w * 150) / 830;
+    var h2 = (w * 740) / 830;
+
+    e_timeline.paper.setSize(w, h1);
+    e_map.paper.setSize(w, h2-h1);
+
+    pc.sendHeight(h);
+}
+
+$(window).resize(function() {
+    resize_event_handler();
+});
+
+resize_event_handler();
 
 </script>
 </body>

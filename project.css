@@ -1,6 +1,5 @@
 
 body, html {
-    height: 100%;
     width: 100%;
     margin:0;
     padding:0;
@@ -42,10 +41,9 @@ content {
     padding: 1em;
     display: block;
 }
-.chart { margin-bottom: 1em; border:1px solid #333 }
-#timeline { width: 800px; height:150px; }
-#map  { width: 800px; height:600px; }
-#boko { width: 380px; height:100px; padding-top:50px; }
+.chart { }
+#timeline { }
+#map  { }
 
 svg tspan, svg text { pointer-events: none }
 
@@ -64,3 +62,7 @@ preset:hover { text-decoration: underline; color: white }
 .active  { background-color: #AAAAAA }
 
 clr { clear: both }
+
+@media (max-width: 620px) { svg tspan, svg text { font-size: 1.3em } }
+@media (max-width: 470px) { svg tspan, svg text { font-size: 1.5em } }
+@media (max-width: 400px) { svg tspan, svg text { font-size: 2em } }
