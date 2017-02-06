@@ -123,11 +123,14 @@ e_map.e.water_body.attr({ cursor: 'default'});
 // draw main components
 // ===========================================================================
 e_timeline
-    .setMargin("all", 10)
+    .setMargin("all", 0)
     .setMargin("spacing", 50)
+    //.drawMargins()
     .doDraw();
 
 e_map
+    .setMargin("all", 0)
+    //.drawMargins()
     .doDraw();
 
 // e_dow
@@ -167,11 +170,11 @@ e_timeline.paper.setViewBox(0,0,800,150);
 var pc = new pym.Child();
 
 function resize_event_handler() {
-    var w = $(window).width() - 30;
+    var w = $(window).width();
     var h = $(window).height();
 
-    var h1 = (w * 150) / 830;
-    var h2 = (w * 740) / 830;
+    var h1 = parseInt((w * 150) / 800);
+    var h2 = parseInt((w * 740) / 800);
 
     e_timeline.paper.setSize(w, h1);
     e_map.paper.setSize(w, h2-h1);

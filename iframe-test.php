@@ -2,6 +2,9 @@
 <html>
 <head>
 <title>iframe test</title>
+<style>
+iframe, h1 { width: 80%; margin-left: 10% }
+</style>
 </head>
 <body>
     <h1>iframe test</h1>
