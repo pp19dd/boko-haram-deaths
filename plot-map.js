@@ -2,9 +2,10 @@
 function smartmap(id, w, h) {
     this.init(id, w, h);
 
-    this.tooltip = this.paper.text(1,1, "");
+    this.tooltip = this.paper.text(1,1, "test");
     this.tooltip.attr({
-        fill: "white"
+        fill: "white",
+        opacity: 0
     })
 }
 
@@ -19,8 +20,14 @@ smartmap.prototype.addPlace = function(k, path) {
         if( this.__disable == true ) return;
 
         this.stop().animate({ opacity: 0.3}, that.style.animation_time, "<>");
-        that.tooltip.show();
+        //that.tooltip.show();
         var b = this.getBBox();
+
+        if( parseInt(b.cx) < parseInt(that.w / 2)) {
+            that.tooltip.attr({ "text-anchor": "start"});
+        } else {
+            that.tooltip.attr({ "text-anchor": "end"});
+        }
 
         var n = k.split("_");
         for( var i = 0; i < n.length; i++ ) {
@@ -35,25 +42,32 @@ smartmap.prototype.addPlace = function(k, path) {
         // write text, then measure its box
         var tx = b.cx;
         var ty = b.cy;
-        that.tooltip.toFront().attr({ opacity: 0, text: text });
+        //that.tooltip.toFront().attr({ opacity: 0, text: text });
+        that.tooltip.toFront().attr({ text: text });
         var b2 = that.tooltip.getBBox();
 
         // apply any adjustments so text doesn't clip
-        if( b2.x < 0 ) tx += 10 -b2.x;
+        //if( b2.x < 0 ) tx += 10 -b2.x;
 
         // show tooltip
         that.tooltip.attr({
             x: tx,
-            y: ty,
-        }).animate({
-            opacity: 1,
-        }, that.style.animation_time, "<>");
+            y: ty
+        });
+
+        that.tooltip.stop().animate({ opacity: 1 }, that.style.animation_time, "<>");
+//        that.tooltip.animate({
+//            opacity: 1,
+//        }, that.style.animation_time, "<>");
+//
+
 
     }).mouseout(function() {
         if( this.__disable == true ) return;
 
         this.stop().animate({ opacity: 1}, that.style.animation_time, "<>");
-        that.tooltip.hide();
+        that.tooltip.stop().animate({ opacity: 0 }, that.style.animation_time, "<>");
+        //that.tooltip.hide();
     }).click(function() {
         if( this.__disable == true ) return;
 

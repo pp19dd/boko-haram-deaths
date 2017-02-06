@@ -64,4 +64,4 @@ clr { clear: both }
 
 @media (max-width: 620px) { svg tspan, svg text { font-size: 1.3em } }
 @media (max-width: 470px) { svg tspan, svg text { font-size: 1.5em } }
-@media (max-width: 400px) { svg tspan, svg text { font-size: 2em } }
+@media (max-width: 400px) { svg tspan, svg text { font-size: 2em; margin-top: 4px; } }
