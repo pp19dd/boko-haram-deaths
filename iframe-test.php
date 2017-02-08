@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>iframe test</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
 <style>
 iframe, h1 { width: 80%; margin-left: 10% }
 </style>
